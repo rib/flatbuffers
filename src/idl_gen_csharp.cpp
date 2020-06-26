@@ -1077,6 +1077,28 @@ class CSharpGenerator : public BaseGenerator {
             code += "  public static VectorOffset ";
             code += "Create";
             code += MakeCamel(field.name);
+            code += "Vector(FlatBufferBuilder builder, IList<";
+            code += GenTypeBasic(vector_type) + "> data) ";
+            code += "{ builder.StartVector(";
+            code += NumToString(elem_size);
+            code += ", data.Count, ";
+            code += NumToString(alignment);
+            code += "); for (int i = data.";
+            code += "Count - 1; i >= 0; i--) builder.";
+            code += "Add";
+            code += GenMethod(vector_type);
+            code += "(";
+            code += SourceCastBasic(vector_type);
+            code += "data[i]";
+            if ((vector_type.base_type == BASE_TYPE_STRUCT ||
+                 vector_type.base_type == BASE_TYPE_STRING))
+              code += ".Value";
+            code += "); return ";
+            code += "builder.EndVector(); }\n";
+
+            code += "  public static VectorOffset ";
+            code += "Create";
+            code += MakeCamel(field.name);
             code += "VectorBlock(FlatBufferBuilder builder, ";
             code += GenTypeBasic(vector_type) + "[] data) ";
             code += "{ builder.StartVector(";
